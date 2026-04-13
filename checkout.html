@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Secure Pay | ROVEXA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>body{background:#050814;color:#fff;} .box{background:rgba(255,255,255,0.02);border:1px solid #1a253f;border-radius:15px;padding:30px;} .form-control,.form-select{background:#000;border:1px solid #1a253f;color:white;}</style>
+</head>
+<body class="py-5">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 box shadow-lg">
+            <h3 class="text-center fw-bold mb-4" style="color: #00ff88;">SECURE CHECKOUT</h3>
+            <div class="bg-dark p-3 rounded mb-4 border border-secondary">
+                <div class="d-flex justify-content-between"><span>Game:</span><span class="text-secondary">{{ game|upper }}</span></div>
+                <div class="d-flex justify-content-between"><span>Package:</span><span class="text-info fw-bold">{{ pkg.name }}</span></div>
+                <div class="d-flex justify-content-between"><span>Player:</span><span class="text-warning">{{ uname }}</span></div>
+                <hr class="border-secondary">
+                <div class="d-flex justify-content-between small text-success"><span>Member Discount:</span><span>-{{ discount|int }}%</span></div>
+                <div class="fs-4 fw-bold text-center mt-2">Total: <span class="text-danger">৳ <span id="finalAmt"></span></span></div>
+            </div>
+
+            <div class="alert text-center fw-bold text-dark" style="background: #00f2fe;">Send Money to: <span class="fs-4 d-block mt-1">01846849460</span></div>
+
+            <form action="/submit_order" method="POST">
+                <input type="hidden" name="game_type" value="{{ game }}">
+                <input type="hidden" name="player_id" value="{{ uid }}"><input type="hidden" name="player_name" value="{{ uname }}">
+                <input type="hidden" name="package_name" value="{{ pkg.name }}"><input type="hidden" name="final_price" id="finalPriceInput">
+                <select name="payment_method" class="form-select mb-3" required><option value="bKash">bKash</option><option value="Nagad">Nagad</option></select>
+                <input type="text" name="sender_number" class="form-control mb-3" placeholder="Sender Number" required>
+                <input type="text" name="trx_id" class="form-control mb-4" placeholder="Transaction ID (TrxID)" required>
+                <button type="submit" class="btn w-100 py-3 fw-bold" style="background: #00ff88; color:#000;">CONFIRM ORDER</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    let price = {{ pkg.price }};
+    let disc = {{ discount }};
+    let finalP = Math.round(price - (price * disc / 100));
+    document.getElementById('finalAmt').innerText = finalP;
+    document.getElementById('finalPriceInput').value = "৳ " + finalP;
+</script>
+</body>
+</html>

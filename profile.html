@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard | ROVEXA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #050814; color: #fff; font-family: 'Segoe UI', sans-serif; }
+        .dash-box { background: rgba(255,255,255,0.02); border: 1px solid #1a253f; border-radius: 15px; padding: 25px; margin-bottom: 20px; }
+        .table { color: #fff; }
+    </style>
+</head>
+<body class="py-5">
+<div class="container">
+    <div class="d-flex justify-content-between mb-4"><h3 class="fw-bold" style="color:#00f2fe;">MY DASHBOARD</h3><a href="/" class="btn btn-outline-info">Home</a></div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="dash-box text-center shadow">
+                <div style="font-size: 5rem; filter: drop-shadow(0 0 10px #00f2fe);">{{ badge }}</div>
+                <h4 class="fw-bold mt-2">{{ user.name }}</h4>
+                <div class="badge bg-info mb-3">{{ user.membership }} Member</div>
+                <div class="d-flex justify-content-between"><span>Wallet:</span><span class="text-success fw-bold">৳ {{ user.balance }}</span></div>
+                <div class="d-flex justify-content-between mt-2"><span>Username:</span><span class="text-secondary">@{{ user.username }}</span></div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="dash-box">
+                <h5 class="fw-bold mb-3" style="color: #00ff88;">Order History</h5>
+                <table class="table table-hover small">
+                    <thead><tr><th>Date</th><th>Package</th><th>Price</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for o in orders %}
+                        <tr><td class="text-secondary">{{ o.created_at.strftime('%d %b') }}</td><td>{{ o.package_name }}</td><td>{{ o.price }}</td>
+                        <td>{% if o.status == 'Pending' %}<span class="badge bg-warning text-dark">Pending</span>{% else %}<span class="badge bg-success">Complete</span>{% endif %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="dash-box">
+                <h5 class="fw-bold mb-3 text-info">Fund History</h5>
+                <table class="table table-hover small">
+                    <thead><tr><th>Date</th><th>Amount</th><th>Method</th></tr></thead>
+                    <tbody>
+                        {% for f in funds %}
+                        <tr><td>{{ f.created_at.strftime('%d %b') }}</td><td class="text-success">+৳{{ f.amount }}</td><td>{{ f.method }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

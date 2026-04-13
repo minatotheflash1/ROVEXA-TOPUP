@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROVEXA | Admin Command Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p-color: #00ff88; --s-color: #00f2fe; --bg: #050814; }
+        body { background: var(--bg); color: #e1e1e1; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; border: 1px solid #1a253f; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .stat-box { background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px; padding: 20px; text-align: center; transition: 0.3s; }
+        .stat-box:hover { transform: translateY(-5px); border-color: var(--p-color); }
+        .table { color: #e1e1e1; margin-top: 20px; }
+        .table thead { background: #1a2030; color: var(--p-color); }
+        .table td, .table th { border-color: #1a253f; vertical-align: middle; padding: 15px; }
+        #searchInput { background: #0c1222; border: 1px solid #1a253f; color: white; border-radius: 8px; }
+        #searchInput:focus { border-color: var(--p-color); box-shadow: none; }
+        .badge-pending { background: #ffc107; color: #000; font-weight: bold; }
+        .badge-completed { background: #00ff88; color: #000; font-weight: bold; }
+        .badge-rejected { background: #ff4757; color: #fff; font-weight: bold; }
+        .btn-action { font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-2">
+        <div class="glass-card mb-4">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 border-secondary mb-4">
+                <h3 class="fw-bold m-0" style="color: var(--p-color);">
+                    <i class="fa-solid fa-terminal me-2"></i> ROVEXA COMMAND CENTER
+                </h3>
+                <div>
+                    <a href="/" class="btn btn-outline-info btn-sm me-2">Main Site</a>
+                    <a href="/logout" class="btn btn-danger btn-sm fw-bold">LOGOUT</a>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-box">
+                        <h6 class="text-secondary text-uppercase small">Total Orders</h6>
+                        <h2 class="text-info fw-bold">{{ total }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-box" style="border-color: #ffc107;">
+                        <h6 class="text-secondary text-uppercase small">Pending Requests</h6>
+                        <h2 class="text-warning fw-bold">{{ pending }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-box" style="border-color: #00ff88;">
+                        <h6 class="text-secondary text-uppercase small">Verified Revenue</h6>
+                        <h2 class="text-success fw-bold">৳ {{ revenue }}</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="position-relative mb-4">
+                <i class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                <input type="text" id="searchInput" class="form-control ps-5 py-3" placeholder="Search by TrxID, Phone, or Player ID..." onkeyup="filterTable()">
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover" id="orderTable">
+                    <thead>
+                        <tr>
+                            <th>TIME</th>
+                            <th>PLAYER INFO</th>
+                            <th>ORDER DETAILS</th>
+                            <th>PAYMENT PROOF</th>
+                            <th>STATUS</th>
+                            <th class="text-center">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td class="small text-secondary">{{ order.created_at.strftime('%d %b, %H:%M') }}</td>
+                            <td>
+                                <div class="text-info fw-bold">{{ order.player_id }}</div>
+                                <div class="text-warning small">{{ order.player_name }}</div>
+                                <div class="badge bg-dark text-secondary x-small">User: {{ order.user_email }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ order.package_name }}</div>
+                                <div class="text-secondary small">{{ order.game_type }}</div>
+                                <div class="text-white fw-bold">{{ order.price }}</div>
+                            </td>
+                            <td>
+                                <span class="text-primary fw-bold">{{ order.payment_method }}</span><br>
+                                <span class="small">Num: <span class="text-success">{{ order.sender_number }}</span></span><br>
+                                <span class="small">TrxID: <span class="text-danger fw-bold">{{ order.trx_id }}</span></span>
+                            </td>
+                            <td>
+                                {% if order.status == 'Pending' %}
+                                    <span class="badge badge-pending px-3 py-2">PENDING</span>
+                                {% elif order.status == 'Completed' %}
+                                    <span class="badge badge-completed px-3 py-2">COMPLETED</span>
+                                {% else %}
+                                    <span class="badge badge-rejected px-3 py-2">REJECTED</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if order.status == 'Pending' %}
+                                <div class="btn-group">
+                                    <a href="/order-action/{{ order.id }}/complete" class="btn btn-sm btn-success btn-action px-3">
+                                        <i class="fa-solid fa-check me-1"></i> Complete
+                                    </a>
+                                    <a href="/order-action/{{ order.id }}/reject" class="btn btn-sm btn-danger btn-action px-3">
+                                        <i class="fa-solid fa-xmark me-1"></i> Reject
+                                    </a>
+                                </div>
+                                {% else %}
+                                <span class="text-muted small italic">Processed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterTable() {
+            let input = document.getElementById("searchInput");
+            let filter = input.value.toUpperCase();
+            let table = document.getElementById("orderTable");
+            let tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName("td");
+                let rowText = "";
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j]) { rowText += td[j].textContent || td[j].innerText; }
+                }
+                if (rowText.toUpperCase().indexOf(filter) > -1) { tr[i].style.display = ""; } 
+                else { tr[i].style.display = "none"; }
+            }
+        }
+    </script>
+</body>
+</html>

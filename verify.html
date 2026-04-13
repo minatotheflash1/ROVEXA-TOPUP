@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Verify OTP | ROVEXA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #050814; color: #fff; height: 100vh; display: flex; align-items: center; justify-content: center;}
+        .box { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(15px); border: 1px solid #1a253f; padding: 40px; border-radius: 20px; width: 400px; text-align: center;}
+        .otp-input { background: #000; border: 2px solid #00ff88; color: #fff; font-size: 2rem; text-align: center; letter-spacing: 15px; font-weight: bold;}
+    </style>
+</head>
+<body>
+    <div class="box shadow-lg">
+        <h4 class="fw-bold">VERIFY EMAIL</h4>
+        <p class="text-secondary small mb-4">Code sent to: <strong class="text-info">{{ email }}</strong></p>
+        {% if error %}<div class="alert alert-danger p-2 small">{{ error }}</div>{% endif %}
+        <form method="POST">
+            <input type="text" class="form-control otp-input py-2 mb-4" name="code" maxlength="6" required>
+            <button type="submit" class="btn btn-info w-100 fw-bold py-2">VERIFY</button>
+        </form>
+    </div>
+</body>
+</html>
